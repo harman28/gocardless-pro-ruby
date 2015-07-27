@@ -1,5 +1,6 @@
 # Ruby Client for GoCardless Pro API
 
+- [YARD Docs](http://gocardless.github.io/pro-client-ruby/)
 - [GoCardless Pro API Docs](https://developer.gocardless.com/pro/)
 - [RubyGems](https://rubygems.org/gems/gocardless_pro)
 
@@ -18,13 +19,13 @@ require 'gocardless_pro'
 ## Usage Examples
 
 - In the case of a single response, the client will return you an instance of the resource
-- In the case of list responses, the client will return an instance of `ListResponse`.
+- In the case of list responses, the client will return an instance of `ListResponse`, which is enumerable.
 - You can also call `#all` to get a lazily paginated list of resource that will deal with making extra API requests to paginate through all the data
 
 ### Initialising the client
 
 The client is initialised with an Access Token.
-You can also pass in `environment` as `:sandbox` to make requests to the sandbox environment rather than production.
+You can also pass in `environment` as `:sandbox` to make requests to the sandbox environment rather than the live one.
 
 ```rb
 @client = GoCardlessPro::Client.new(

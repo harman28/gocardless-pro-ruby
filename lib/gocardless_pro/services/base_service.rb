@@ -21,8 +21,9 @@ module GoCardlessPro
 
       # Get the envelope key for the given service. Children are expected to implement this method.
       def envelope_key
-        fail NotImplementedError
+        raise NotImplementedError
       end
     end
   end
 end
+

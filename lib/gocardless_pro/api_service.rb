@@ -17,15 +17,15 @@ module GoCardlessPro
     # @param secret [String] the API key secret to use
     # @param options [Hash] additional options to use when creating the service
     def initialize(url, token, options = {})
-      @url = url
-      root_url, @path_prefix = unpack_url(url)
-      http_adapter = options[:http_adapter] || [:net_http]
-      @connection = Faraday.new(url: root_url) do |faraday|
-        faraday.adapter(*http_adapter)
-      end
+        @url = url
+        root_url, @path_prefix = unpack_url(url)
+        http_adapter = options[:http_adapter] || [:net_http]
+        @connection = Faraday.new(url: root_url) do |faraday|
+          faraday.adapter(*http_adapter)
+        end
 
-      @headers = options[:default_headers] || {}
-      @headers['Authorization'] = "Bearer #{token}"
+        @headers = options[:default_headers] || {}
+        @headers['Authorization'] = "Bearer #{token}"
     end
 
     # Make a request to the API
@@ -34,7 +34,7 @@ module GoCardlessPro
     # @param path [String] the URL (without the base domain) to make the request to
     # @param options [Hash] the options hash
     def make_request(method, path, options = {})
-      fail ArgumentError, 'options must be a hash' unless options.is_a?(Hash)
+      raise ArgumentError, 'options must be a hash' unless options.is_a?(Hash)
       options[:headers] ||= {}
       options[:headers] = @headers.merge(options[:headers])
       Request.new(@connection, method, @path_prefix + path, options).request

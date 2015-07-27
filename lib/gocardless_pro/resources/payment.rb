@@ -11,50 +11,53 @@ require 'uri'
 module GoCardlessPro
   # A module containing classes for each of the resources in the GC Api
   module Resources
-    # Payment objects represent payments from a
-    # [customer](#core-endpoints-customers) to a
-    # [creditor](#whitelabel-partner-endpoints-creditors), taken against a Direct
-    # Debit [mandate](#core-endpoints-mandates).
-    #
-    # GoCardless will notify
-    # you via a [webhook](#webhooks) whenever the state of a payment changes.
+  # Payment objects represent payments from a
+  # [customer](#core-endpoints-customers) to a
+  # [creditor](#whitelabel-partner-endpoints-creditors), taken against a Direct
+  # Debit [mandate](#core-endpoints-mandates).
+  # 
+  # GoCardless will notify
+  # you via a [webhook](#webhooks) whenever the state of a payment changes.
     # Represents an instance of a payment resource returned from the API
     class Payment
+      
+      
       attr_reader :amount
-
+      
       attr_reader :amount_refunded
-
+      
       attr_reader :charge_date
-
+      
       attr_reader :created_at
-
+      
       attr_reader :currency
-
+      
       attr_reader :description
-
+      
       attr_reader :id
-
+      
+      
       attr_reader :metadata
-
+      
       attr_reader :reference
-
+      
       attr_reader :status
       # initialize a resource instance
       # @param object [Hash] an object returned from the API
       def initialize(object, response = nil)
         @object = object
-
-        @amount = object['amount']
-        @amount_refunded = object['amount_refunded']
-        @charge_date = object['charge_date']
-        @created_at = object['created_at']
-        @currency = object['currency']
-        @description = object['description']
-        @id = object['id']
-        @links = object['links']
-        @metadata = object['metadata']
-        @reference = object['reference']
-        @status = object['status']
+        
+        @amount = object["amount"]
+        @amount_refunded = object["amount_refunded"]
+        @charge_date = object["charge_date"]
+        @created_at = object["created_at"]
+        @currency = object["currency"]
+        @description = object["description"]
+        @id = object["id"]
+        @links = object["links"]
+        @metadata = object["metadata"]
+        @reference = object["reference"]
+        @status = object["status"]
         @response = response
       end
 
@@ -62,27 +65,52 @@ module GoCardlessPro
         ApiResponse.new(@response)
       end
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       # return the links that the resource has
       def links
         Struct.new(
           *{
-
-            creditor: '',
-
-            mandate: '',
-
-            payout: '',
-
-            subscription: ''
-
+          
+            creditor: "",
+          
+            mandate: "",
+          
+            payout: "",
+          
+            subscription: "",
+          
           }.keys.sort
-        ).new(*@links.sort.map(&:last))
+          ).new(*@links.sort.map(&:last))
       end
+      
+      
+      
+      
+      
+      
+      
+      
 
       # Provides the resource as a hash of all it's readable attributes
       def to_h
         @object
       end
     end
+
   end
 end

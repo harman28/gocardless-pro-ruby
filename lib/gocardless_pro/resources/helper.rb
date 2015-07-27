@@ -11,23 +11,15 @@ require 'uri'
 module GoCardlessPro
   # A module containing classes for each of the resources in the GC Api
   module Resources
-  # Mandate PDFs allow you to easily display [scheme-rules
-  # compliant](#appendix-compliance-requirements) Direct Debit mandates to your
-  # customers.
-    # Represents an instance of a mandate_pdf resource returned from the API
-    class MandatePdf
+  # 
+    # Represents an instance of a helper resource returned from the API
+    class Helper
       
-      
-      attr_reader :expires_at
-      
-      attr_reader :url
       # initialize a resource instance
       # @param object [Hash] an object returned from the API
       def initialize(object, response = nil)
         @object = object
         
-        @expires_at = object["expires_at"]
-        @url = object["url"]
         @response = response
       end
 
@@ -35,10 +27,6 @@ module GoCardlessPro
         ApiResponse.new(@response)
       end
 
-      
-      
-      
-      
       
 
       # Provides the resource as a hash of all it's readable attributes

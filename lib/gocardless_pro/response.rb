@@ -1,6 +1,7 @@
 module GoCardlessPro
   # A class to wrap an API response
   class Response
+
     extend Forwardable
 
     def_delegator :@response, :headers
@@ -31,7 +32,9 @@ module GoCardlessPro
 
     # Returns the meta hash of the response
     def meta
-      fail ResponseError, 'Cannot fetch meta for non JSON response' unless json?
+      unless json?
+        raise ResponseError, 'Cannot fetch meta for non JSON response'
+      end
 
       json_body.fetch('meta', {})
     end
@@ -54,7 +57,7 @@ module GoCardlessPro
     def handle_json
       if error?
         type = json_body['error']['type']
-        fail(error_class_for_type(type), json_body['error'])
+        raise(error_class_for_type(type), json_body['error'])
       else
         json_body
       end
@@ -76,7 +79,7 @@ module GoCardlessPro
         "headers: #{@response.headers}\n" \
         "body: #{@response.body}"
       }
-      error? ? fail(ApiError, default_raw_message) : raw_body
+      error? ? raise(ApiError, default_raw_message) : raw_body
     end
   end
 end

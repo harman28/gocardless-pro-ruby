@@ -24,7 +24,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
           "created_at" => "created_at-input",
           "currency" => "currency-input",
           "day_of_month" => "day_of_month-input",
-          "end_date" => "end_date-input",
+          "end_at" => "end_at-input",
           "id" => "id-input",
           "interval" => "interval-input",
           "interval_unit" => "interval_unit-input",
@@ -33,7 +33,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
           "month" => "month-input",
           "name" => "name-input",
           "payment_reference" => "payment_reference-input",
-          "start_date" => "start_date-input",
+          "start_at" => "start_at-input",
           "status" => "status-input",
           "upcoming_payments" => "upcoming_payments-input",
           }
@@ -50,7 +50,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -59,7 +59,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
                 }
@@ -74,7 +74,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -83,7 +83,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
                 }
@@ -140,7 +140,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -149,7 +149,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
                 }],
@@ -189,7 +189,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
           
           
           
-          expect(get_list_response.records.first.end_date).to eq("end_date-input")
+          expect(get_list_response.records.first.end_at).to eq("end_at-input")
           
           
           
@@ -223,7 +223,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
           
           
           
-          expect(get_list_response.records.first.start_date).to eq("start_date-input")
+          expect(get_list_response.records.first.start_at).to eq("start_at-input")
           
           
           
@@ -256,7 +256,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               "created_at" => "created_at-input",
               "currency" => "currency-input",
               "day_of_month" => "day_of_month-input",
-              "end_date" => "end_date-input",
+              "end_at" => "end_at-input",
               "id" => "id-input",
               "interval" => "interval-input",
               "interval_unit" => "interval_unit-input",
@@ -265,7 +265,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               "month" => "month-input",
               "name" => "name-input",
               "payment_reference" => "payment_reference-input",
-              "start_date" => "start_date-input",
+              "start_at" => "start_at-input",
               "status" => "status-input",
               "upcoming_payments" => "upcoming_payments-input",
             }],
@@ -288,7 +288,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               "created_at" => "created_at-input",
               "currency" => "currency-input",
               "day_of_month" => "day_of_month-input",
-              "end_date" => "end_date-input",
+              "end_at" => "end_at-input",
               "id" => "id-input",
               "interval" => "interval-input",
               "interval_unit" => "interval_unit-input",
@@ -297,7 +297,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               "month" => "month-input",
               "name" => "name-input",
               "payment_reference" => "payment_reference-input",
-              "start_date" => "start_date-input",
+              "start_at" => "start_at-input",
               "status" => "status-input",
               "upcoming_payments" => "upcoming_payments-input",
             }],
@@ -341,7 +341,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -350,7 +350,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
               }
@@ -383,7 +383,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -392,7 +392,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
               }
@@ -444,7 +444,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -453,7 +453,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
               }
@@ -492,7 +492,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               "created_at" => "created_at-input",
               "currency" => "currency-input",
               "day_of_month" => "day_of_month-input",
-              "end_date" => "end_date-input",
+              "end_at" => "end_at-input",
               "id" => "id-input",
               "interval" => "interval-input",
               "interval_unit" => "interval_unit-input",
@@ -501,7 +501,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               "month" => "month-input",
               "name" => "name-input",
               "payment_reference" => "payment_reference-input",
-              "start_date" => "start_date-input",
+              "start_at" => "start_at-input",
               "status" => "status-input",
               "upcoming_payments" => "upcoming_payments-input",
             }
@@ -540,7 +540,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "created_at" => "created_at-input",
                 "currency" => "currency-input",
                 "day_of_month" => "day_of_month-input",
-                "end_date" => "end_date-input",
+                "end_at" => "end_at-input",
                 "id" => "id-input",
                 "interval" => "interval-input",
                 "interval_unit" => "interval_unit-input",
@@ -549,7 +549,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 "month" => "month-input",
                 "name" => "name-input",
                 "payment_reference" => "payment_reference-input",
-                "start_date" => "start_date-input",
+                "start_at" => "start_at-input",
                 "status" => "status-input",
                 "upcoming_payments" => "upcoming_payments-input",
               }

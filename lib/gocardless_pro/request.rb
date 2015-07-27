@@ -45,7 +45,7 @@ module GoCardlessPro
       elsif [:post, :put, :delete].include?(@method)
         @given_options.fetch(:params, {})
       else
-        fail "Unknown request method #{@method}"
+        raise "Unknown request method #{@method}"
       end
     end
 

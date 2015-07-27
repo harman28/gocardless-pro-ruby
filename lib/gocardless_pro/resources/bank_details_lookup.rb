@@ -11,22 +11,24 @@ require 'uri'
 module GoCardlessPro
   # A module containing classes for each of the resources in the GC Api
   module Resources
-    # Look up the name and reachability of a bank.
+  # Look up the name and reachability of a bank.
     # Represents an instance of a bank_details_lookup resource returned from the API
     class BankDetailsLookup
+      
+      
       attr_reader :available_debit_schemes
-
+      
       attr_reader :bank_name
-
+      
       attr_reader :bic
       # initialize a resource instance
       # @param object [Hash] an object returned from the API
       def initialize(object, response = nil)
         @object = object
-
-        @available_debit_schemes = object['available_debit_schemes']
-        @bank_name = object['bank_name']
-        @bic = object['bic']
+        
+        @available_debit_schemes = object["available_debit_schemes"]
+        @bank_name = object["bank_name"]
+        @bic = object["bic"]
         @response = response
       end
 
@@ -34,10 +36,19 @@ module GoCardlessPro
         ApiResponse.new(@response)
       end
 
+      
+      
+      
+      
+      
+      
+      
+
       # Provides the resource as a hash of all it's readable attributes
       def to_h
         @object
       end
     end
+
   end
 end

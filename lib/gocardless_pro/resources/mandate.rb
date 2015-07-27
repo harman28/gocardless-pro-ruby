@@ -11,39 +11,42 @@ require 'uri'
 module GoCardlessPro
   # A module containing classes for each of the resources in the GC Api
   module Resources
-    # Mandates represent the Direct Debit mandate with a
-    # [customer](#core-endpoints-customers).
-    #
-    # GoCardless will notify you
-    # via a [webhook](#webhooks) whenever the status of a mandate changes.
+  # Mandates represent the Direct Debit mandate with a
+  # [customer](#core-endpoints-customers).
+  # 
+  # GoCardless will notify you
+  # via a [webhook](#webhooks) whenever the status of a mandate changes.
     # Represents an instance of a mandate resource returned from the API
     class Mandate
+      
+      
       attr_reader :created_at
-
+      
       attr_reader :id
-
+      
+      
       attr_reader :metadata
-
+      
       attr_reader :next_possible_charge_date
-
+      
       attr_reader :reference
-
+      
       attr_reader :scheme
-
+      
       attr_reader :status
       # initialize a resource instance
       # @param object [Hash] an object returned from the API
       def initialize(object, response = nil)
         @object = object
-
-        @created_at = object['created_at']
-        @id = object['id']
-        @links = object['links']
-        @metadata = object['metadata']
-        @next_possible_charge_date = object['next_possible_charge_date']
-        @reference = object['reference']
-        @scheme = object['scheme']
-        @status = object['status']
+        
+        @created_at = object["created_at"]
+        @id = object["id"]
+        @links = object["links"]
+        @metadata = object["metadata"]
+        @next_possible_charge_date = object["next_possible_charge_date"]
+        @reference = object["reference"]
+        @scheme = object["scheme"]
+        @status = object["status"]
         @response = response
       end
 
@@ -51,23 +54,42 @@ module GoCardlessPro
         ApiResponse.new(@response)
       end
 
+      
+      
+      
+      
+      
+      
       # return the links that the resource has
       def links
         Struct.new(
           *{
-
-            creditor: '',
-
-            customer_bank_account: ''
-
+          
+            creditor: "",
+          
+            customer_bank_account: "",
+          
           }.keys.sort
-        ).new(*@links.sort.map(&:last))
+          ).new(*@links.sort.map(&:last))
       end
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
 
       # Provides the resource as a hash of all it's readable attributes
       def to_h
         @object
       end
     end
+
   end
 end

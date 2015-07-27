@@ -4,7 +4,7 @@ module GoCardlessPro
     attr_reader :error
 
     # intialize a new error
-    #  @param error the error from the API
+    # @param error the error from the API
     def initialize(error)
       @error = error
     end

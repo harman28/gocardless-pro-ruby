@@ -11,34 +11,37 @@ require 'uri'
 module GoCardlessPro
   # A module containing classes for each of the resources in the GC Api
   module Resources
-    # Events are stored for all webhooks. An event refers to a resource which has
-    # been updated, for example a payment which has been collected, or a mandate
-    # which has been transferred.
+  # Events are stored for all webhooks. An event refers to a resource which has
+  # been updated, for example a payment which has been collected, or a mandate
+  # which has been transferred.
     # Represents an instance of a event resource returned from the API
     class Event
+      
+      
       attr_reader :action
-
+      
       attr_reader :created_at
-
+      
       attr_reader :details
-
+      
       attr_reader :id
-
+      
+      
       attr_reader :metadata
-
+      
       attr_reader :resource_type
       # initialize a resource instance
       # @param object [Hash] an object returned from the API
       def initialize(object, response = nil)
         @object = object
-
-        @action = object['action']
-        @created_at = object['created_at']
-        @details = object['details']
-        @id = object['id']
-        @links = object['links']
-        @metadata = object['metadata']
-        @resource_type = object['resource_type']
+        
+        @action = object["action"]
+        @created_at = object["created_at"]
+        @details = object["details"]
+        @id = object["id"]
+        @links = object["links"]
+        @metadata = object["metadata"]
+        @resource_type = object["resource_type"]
         @response = response
       end
 
@@ -46,35 +49,52 @@ module GoCardlessPro
         ApiResponse.new(@response)
       end
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       # return the links that the resource has
       def links
         Struct.new(
           *{
-
-            mandate: '',
-
-            new_customer_bank_account: '',
-
-            parent_event: '',
-
-            payment: '',
-
-            payout: '',
-
-            previous_customer_bank_account: '',
-
-            refund: '',
-
-            subscription: ''
-
+          
+            mandate: "",
+          
+            new_customer_bank_account: "",
+          
+            parent_event: "",
+          
+            payment: "",
+          
+            payout: "",
+          
+            previous_customer_bank_account: "",
+          
+            refund: "",
+          
+            subscription: "",
+          
           }.keys.sort
-        ).new(*@links.sort.map(&:last))
+          ).new(*@links.sort.map(&:last))
       end
+      
+      
+      
+      
+      
+      
 
       # Provides the resource as a hash of all it's readable attributes
       def to_h
         @object
       end
     end
+
   end
 end

@@ -2,71 +2,77 @@ module GoCardlessPro
   # A class for working with and talking to the GoCardless API
   class Client
     extend Forwardable
-
+  
     # Access to the service for bank_details_lookup to make API calls
     def bank_details_lookups
       @bank_details_lookups ||= Services::BankDetailsLookupsService.new(@api_service)
     end
-
+  
     # Access to the service for creditor to make API calls
     def creditors
       @creditors ||= Services::CreditorsService.new(@api_service)
     end
-
+  
     # Access to the service for creditor_bank_account to make API calls
     def creditor_bank_accounts
       @creditor_bank_accounts ||= Services::CreditorBankAccountsService.new(@api_service)
     end
-
+  
     # Access to the service for customer to make API calls
     def customers
       @customers ||= Services::CustomersService.new(@api_service)
     end
-
+  
     # Access to the service for customer_bank_account to make API calls
     def customer_bank_accounts
       @customer_bank_accounts ||= Services::CustomerBankAccountsService.new(@api_service)
     end
-
+  
     # Access to the service for event to make API calls
     def events
       @events ||= Services::EventsService.new(@api_service)
     end
-
+  
+    # Access to the service for helper to make API calls
+    def helpers
+      @helpers ||= Services::HelpersService.new(@api_service)
+    end
+  
     # Access to the service for mandate to make API calls
     def mandates
       @mandates ||= Services::MandatesService.new(@api_service)
     end
-
+  
     # Access to the service for mandate_pdf to make API calls
     def mandate_pdfs
       @mandate_pdfs ||= Services::MandatePdfsService.new(@api_service)
     end
-
+  
     # Access to the service for payment to make API calls
     def payments
       @payments ||= Services::PaymentsService.new(@api_service)
     end
-
+  
     # Access to the service for payout to make API calls
     def payouts
       @payouts ||= Services::PayoutsService.new(@api_service)
     end
-
+  
     # Access to the service for redirect_flow to make API calls
     def redirect_flows
       @redirect_flows ||= Services::RedirectFlowsService.new(@api_service)
     end
-
+  
     # Access to the service for refund to make API calls
     def refunds
       @refunds ||= Services::RefundsService.new(@api_service)
     end
-
+  
     # Access to the service for subscription to make API calls
     def subscriptions
       @subscriptions ||= Services::SubscriptionsService.new(@api_service)
     end
+  
 
     # Get a Client configured to use HTTP Basic authentication with the GC Api
     #
@@ -78,7 +84,7 @@ module GoCardlessPro
     #   authentication.
     #
     def initialize(options)
-      access_token = options.delete(:access_token) || fail('No Access Token given to GoCardless Client')
+      access_token = options.delete(:access_token) || raise("No Access Token given to GoCardless Client")
       environment = options.delete(:environment) || :live
       url = options.delete(:url) || url_for_environment(environment)
       options = custom_options(options)
@@ -89,11 +95,11 @@ module GoCardlessPro
 
     def url_for_environment(environment)
       if environment === :live
-        'https://api.gocardless.com'
+        "https://api.gocardless.com"
       elsif environment === :sandbox
-        'https://api-sandbox.gocardless.com'
+        "https://api-sandbox.gocardless.com"
       else
-        fail "Unknown environment key: #{environment}"
+        raise "Unknown environment key: #{environment}"
       end
     end
 
@@ -112,8 +118,8 @@ module GoCardlessPro
     # Get the default options.
     def default_options
       {
-        default_headers: {
-          'GoCardless-Version' => '2015-07-06',
+        default_headers: { 
+          'GoCardless-Version' => '2015-04-29',
           'User-Agent' => "#{user_agent}",
           'Content-Type' => 'application/json'
         }
@@ -123,7 +129,7 @@ module GoCardlessPro
     def user_agent
       @user_agent ||=
         begin
-          gem_name = 'gocardless_pro'
+          gem_name = "gocardless_pro"
           gem_info = "#{gem_name}"
           gem_info += "/v#{ GoCardlessPro::VERSION}" if defined?(GoCardlessPro::VERSION)
 
@@ -140,7 +146,7 @@ module GoCardlessPro
             "#{RUBY_PLATFORM}"
           ]
           comment << "faraday/#{Faraday::VERSION}"
-          "#{gem_info} #{comment.join(' ')}"
+          "#{gem_info} #{comment.join(" ")}"
         end
     end
   end

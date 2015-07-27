@@ -10,6 +10,7 @@ require 'zlib'
 require 'faraday'
 require 'time'
 
+
 require 'uri'
 
 module GoCardlessPro
@@ -35,6 +36,7 @@ require_relative 'gocardless_pro/request'
 require_relative 'gocardless_pro/response'
 require_relative 'gocardless_pro/api_response'
 
+
 require_relative 'gocardless_pro/resources/bank_details_lookup'
 require_relative 'gocardless_pro/services/bank_details_lookups_service'
 
@@ -52,6 +54,9 @@ require_relative 'gocardless_pro/services/customer_bank_accounts_service'
 
 require_relative 'gocardless_pro/resources/event'
 require_relative 'gocardless_pro/services/events_service'
+
+require_relative 'gocardless_pro/resources/helper'
+require_relative 'gocardless_pro/services/helpers_service'
 
 require_relative 'gocardless_pro/resources/mandate'
 require_relative 'gocardless_pro/services/mandates_service'
@@ -73,5 +78,6 @@ require_relative 'gocardless_pro/services/refunds_service'
 
 require_relative 'gocardless_pro/resources/subscription'
 require_relative 'gocardless_pro/services/subscriptions_service'
+
 
 require_relative 'gocardless_pro/client.rb'
