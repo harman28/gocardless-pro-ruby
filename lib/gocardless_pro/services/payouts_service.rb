@@ -19,6 +19,7 @@ module GoCardlessPro
         path = '/payouts'
 
         response = make_request(:get, path, options)
+
         ListResponse.new(
           response: response,
           unenveloped_body: unenvelope_body(response.body),
@@ -75,6 +76,10 @@ module GoCardlessPro
         param_map.reduce(url) do |new_url, (param, value)|
           new_url.gsub(":#{param}", URI.escape(value))
         end
+      end
+
+      def handle_conflict(error)
+        get(error.conflicting_resource_id)
       end
     end
   end

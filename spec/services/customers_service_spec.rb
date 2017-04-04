@@ -114,6 +114,89 @@ describe GoCardlessPro::Services::CustomersService do
         expect { post_create_response }.to raise_error(GoCardlessPro::ValidationError)
       end
     end
+
+    context 'with a request that returns an idempotent creation conflict error' do
+      let(:id) { 'ID123' }
+
+      let(:new_resource) do
+        {
+
+          'address_line1' => 'address_line1-input',
+          'address_line2' => 'address_line2-input',
+          'address_line3' => 'address_line3-input',
+          'city' => 'city-input',
+          'company_name' => 'company_name-input',
+          'country_code' => 'country_code-input',
+          'created_at' => 'created_at-input',
+          'email' => 'email-input',
+          'family_name' => 'family_name-input',
+          'given_name' => 'given_name-input',
+          'id' => 'id-input',
+          'language' => 'language-input',
+          'metadata' => 'metadata-input',
+          'postal_code' => 'postal_code-input',
+          'region' => 'region-input',
+          'swedish_identity_number' => 'swedish_identity_number-input'
+        }
+      end
+
+      let!(:post_stub) do
+        stub_request(:post, %r{.*api.gocardless.com/customers}).to_return(
+          body: {
+            error: {
+              type: 'invalid_state',
+              code: 409,
+              errors: [
+                {
+                  message: 'A resource has already been created with this idempotency key',
+                  reason: 'idempotent_creation_conflict',
+                  links: {
+                    conflicting_resource_id: id
+                  }
+                }
+              ]
+            }
+          }.to_json,
+          headers: { 'Content-Type' => 'application/json' },
+          status: 409
+        )
+      end
+
+      let!(:get_stub) do
+        stub_url = "/customers/#{id}"
+        stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+          .to_return(
+            body: {
+              'customers' => {
+
+                'address_line1' => 'address_line1-input',
+                'address_line2' => 'address_line2-input',
+                'address_line3' => 'address_line3-input',
+                'city' => 'city-input',
+                'company_name' => 'company_name-input',
+                'country_code' => 'country_code-input',
+                'created_at' => 'created_at-input',
+                'email' => 'email-input',
+                'family_name' => 'family_name-input',
+                'given_name' => 'given_name-input',
+                'id' => 'id-input',
+                'language' => 'language-input',
+                'metadata' => 'metadata-input',
+                'postal_code' => 'postal_code-input',
+                'region' => 'region-input',
+                'swedish_identity_number' => 'swedish_identity_number-input'
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+      end
+
+      it 'fetches the already-created resource' do
+        post_create_response
+        expect(post_stub).to have_been_requested
+        expect(get_stub).to have_been_requested
+      end
+    end
   end
 
   describe '#list' do

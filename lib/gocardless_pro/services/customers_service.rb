@@ -20,7 +20,15 @@ module GoCardlessPro
         params = options.delete(:params) || {}
         options[:params] = {}
         options[:params][envelope_key] = params
-        response = make_request(:post, path, options)
+
+        begin
+          response = make_request(:post, path, options)
+          response.tap(&:body)
+        rescue InvalidStateError => e
+          return handle_conflict(e) if e.idempotent_creation_conflict?
+
+          raise e
+        end
 
         return if response.body.nil?
 
@@ -35,6 +43,7 @@ module GoCardlessPro
         path = '/customers'
 
         response = make_request(:get, path, options)
+
         ListResponse.new(
           response: response,
           unenveloped_body: unenvelope_body(response.body),
@@ -80,6 +89,7 @@ module GoCardlessPro
         params = options.delete(:params) || {}
         options[:params] = {}
         options[:params][envelope_key] = params
+
         response = make_request(:put, path, options)
 
         return if response.body.nil?
@@ -108,6 +118,10 @@ module GoCardlessPro
         param_map.reduce(url) do |new_url, (param, value)|
           new_url.gsub(":#{param}", URI.escape(value))
         end
+      end
+
+      def handle_conflict(error)
+        get(error.conflicting_resource_id)
       end
     end
   end

@@ -90,6 +90,73 @@ describe GoCardlessPro::Services::RedirectFlowsService do
         expect { post_create_response }.to raise_error(GoCardlessPro::ValidationError)
       end
     end
+
+    context 'with a request that returns an idempotent creation conflict error' do
+      let(:id) { 'ID123' }
+
+      let(:new_resource) do
+        {
+
+          'created_at' => 'created_at-input',
+          'description' => 'description-input',
+          'id' => 'id-input',
+          'links' => 'links-input',
+          'redirect_url' => 'redirect_url-input',
+          'scheme' => 'scheme-input',
+          'session_token' => 'session_token-input',
+          'success_redirect_url' => 'success_redirect_url-input'
+        }
+      end
+
+      let!(:post_stub) do
+        stub_request(:post, %r{.*api.gocardless.com/redirect_flows}).to_return(
+          body: {
+            error: {
+              type: 'invalid_state',
+              code: 409,
+              errors: [
+                {
+                  message: 'A resource has already been created with this idempotency key',
+                  reason: 'idempotent_creation_conflict',
+                  links: {
+                    conflicting_resource_id: id
+                  }
+                }
+              ]
+            }
+          }.to_json,
+          headers: { 'Content-Type' => 'application/json' },
+          status: 409
+        )
+      end
+
+      let!(:get_stub) do
+        stub_url = "/redirect_flows/#{id}"
+        stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+          .to_return(
+            body: {
+              'redirect_flows' => {
+
+                'created_at' => 'created_at-input',
+                'description' => 'description-input',
+                'id' => 'id-input',
+                'links' => 'links-input',
+                'redirect_url' => 'redirect_url-input',
+                'scheme' => 'scheme-input',
+                'session_token' => 'session_token-input',
+                'success_redirect_url' => 'success_redirect_url-input'
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+      end
+
+      it 'fetches the already-created resource' do
+        post_create_response
+        expect(post_stub).to have_been_requested
+        expect(get_stub).to have_been_requested
+      end
+    end
   end
 
   describe '#get' do

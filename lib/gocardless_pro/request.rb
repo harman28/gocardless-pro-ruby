@@ -1,3 +1,5 @@
+require 'securerandom'
+
 module GoCardlessPro
   # A class that wraps an API request
   class Request
@@ -21,6 +23,8 @@ module GoCardlessPro
         @request_body = @request_body.to_json
         @headers['Content-Type'] ||= 'application/json'
       end
+
+      @headers['Idempotency-Key'] ||= SecureRandom.uuid if @method == :post
     end
 
     # Make the request and wrap it in a Response object

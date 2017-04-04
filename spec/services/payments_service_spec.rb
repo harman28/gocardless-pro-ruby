@@ -99,6 +99,79 @@ describe GoCardlessPro::Services::PaymentsService do
         expect { post_create_response }.to raise_error(GoCardlessPro::ValidationError)
       end
     end
+
+    context 'with a request that returns an idempotent creation conflict error' do
+      let(:id) { 'ID123' }
+
+      let(:new_resource) do
+        {
+
+          'amount' => 'amount-input',
+          'amount_refunded' => 'amount_refunded-input',
+          'charge_date' => 'charge_date-input',
+          'created_at' => 'created_at-input',
+          'currency' => 'currency-input',
+          'description' => 'description-input',
+          'id' => 'id-input',
+          'links' => 'links-input',
+          'metadata' => 'metadata-input',
+          'reference' => 'reference-input',
+          'status' => 'status-input'
+        }
+      end
+
+      let!(:post_stub) do
+        stub_request(:post, %r{.*api.gocardless.com/payments}).to_return(
+          body: {
+            error: {
+              type: 'invalid_state',
+              code: 409,
+              errors: [
+                {
+                  message: 'A resource has already been created with this idempotency key',
+                  reason: 'idempotent_creation_conflict',
+                  links: {
+                    conflicting_resource_id: id
+                  }
+                }
+              ]
+            }
+          }.to_json,
+          headers: { 'Content-Type' => 'application/json' },
+          status: 409
+        )
+      end
+
+      let!(:get_stub) do
+        stub_url = "/payments/#{id}"
+        stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+          .to_return(
+            body: {
+              'payments' => {
+
+                'amount' => 'amount-input',
+                'amount_refunded' => 'amount_refunded-input',
+                'charge_date' => 'charge_date-input',
+                'created_at' => 'created_at-input',
+                'currency' => 'currency-input',
+                'description' => 'description-input',
+                'id' => 'id-input',
+                'links' => 'links-input',
+                'metadata' => 'metadata-input',
+                'reference' => 'reference-input',
+                'status' => 'status-input'
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+      end
+
+      it 'fetches the already-created resource' do
+        post_create_response
+        expect(post_stub).to have_been_requested
+        expect(get_stub).to have_been_requested
+      end
+    end
   end
 
   describe '#list' do

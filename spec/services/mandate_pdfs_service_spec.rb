@@ -72,5 +72,44 @@ describe GoCardlessPro::Services::MandatePdfsService do
         expect { post_create_response }.to raise_error(GoCardlessPro::ValidationError)
       end
     end
+
+    context 'with a request that returns an idempotent creation conflict error' do
+      let(:id) { 'ID123' }
+
+      let(:new_resource) do
+        {
+
+          'expires_at' => 'expires_at-input',
+          'url' => 'url-input'
+        }
+      end
+
+      let!(:post_stub) do
+        stub_request(:post, %r{.*api.gocardless.com/mandate_pdfs}).to_return(
+          body: {
+            error: {
+              type: 'invalid_state',
+              code: 409,
+              errors: [
+                {
+                  message: 'A resource has already been created with this idempotency key',
+                  reason: 'idempotent_creation_conflict',
+                  links: {
+                    conflicting_resource_id: id
+                  }
+                }
+              ]
+            }
+          }.to_json,
+          headers: { 'Content-Type' => 'application/json' },
+          status: 409
+        )
+      end
+
+      it 'fetches the already-created resource' do
+        expect { post_create_response }.to raise_error(GoCardlessPro::InvalidStateError)
+        expect(post_stub).to have_been_requested
+      end
+    end
   end
 end

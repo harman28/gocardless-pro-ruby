@@ -87,6 +87,71 @@ describe GoCardlessPro::Services::RefundsService do
         expect { post_create_response }.to raise_error(GoCardlessPro::ValidationError)
       end
     end
+
+    context 'with a request that returns an idempotent creation conflict error' do
+      let(:id) { 'ID123' }
+
+      let(:new_resource) do
+        {
+
+          'amount' => 'amount-input',
+          'created_at' => 'created_at-input',
+          'currency' => 'currency-input',
+          'id' => 'id-input',
+          'links' => 'links-input',
+          'metadata' => 'metadata-input',
+          'reference' => 'reference-input'
+        }
+      end
+
+      let!(:post_stub) do
+        stub_request(:post, %r{.*api.gocardless.com/refunds}).to_return(
+          body: {
+            error: {
+              type: 'invalid_state',
+              code: 409,
+              errors: [
+                {
+                  message: 'A resource has already been created with this idempotency key',
+                  reason: 'idempotent_creation_conflict',
+                  links: {
+                    conflicting_resource_id: id
+                  }
+                }
+              ]
+            }
+          }.to_json,
+          headers: { 'Content-Type' => 'application/json' },
+          status: 409
+        )
+      end
+
+      let!(:get_stub) do
+        stub_url = "/refunds/#{id}"
+        stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+          .to_return(
+            body: {
+              'refunds' => {
+
+                'amount' => 'amount-input',
+                'created_at' => 'created_at-input',
+                'currency' => 'currency-input',
+                'id' => 'id-input',
+                'links' => 'links-input',
+                'metadata' => 'metadata-input',
+                'reference' => 'reference-input'
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+      end
+
+      it 'fetches the already-created resource' do
+        post_create_response
+        expect(post_stub).to have_been_requested
+        expect(get_stub).to have_been_requested
+      end
+    end
   end
 
   describe '#list' do
