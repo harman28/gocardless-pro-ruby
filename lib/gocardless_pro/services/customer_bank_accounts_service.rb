@@ -38,6 +38,8 @@ module GoCardlessPro
 
         begin
           response = make_request(:post, path, options)
+
+          # Response doesn't raise any errors until #body is called
           response.tap(&:body)
         rescue InvalidStateError => e
           return get(e.conflicting_resource_id) if e.idempotent_creation_conflict?
@@ -133,6 +135,8 @@ module GoCardlessPro
 
         begin
           response = make_request(:post, path, options)
+
+          # Response doesn't raise any errors until #body is called
           response.tap(&:body)
         rescue InvalidStateError => e
           return get(e.conflicting_resource_id) if e.idempotent_creation_conflict?

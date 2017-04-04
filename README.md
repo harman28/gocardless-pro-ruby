@@ -167,7 +167,7 @@ All errors have the following methods to facilitate access to information in the
 - `#request_id`
 - `#errors`
 
-If a timeout occurs, and the request being made is idempotent, the library will automatically retry the request up to 3 times before giving up and raising an error.
+If a timeout occurs, and the request being made is idempotent, the library will automatically retry the request up to 3 times before giving up and raising a `Faraday::TimeoutError` error.
 
 ### Using the OAuth API
 

@@ -110,7 +110,7 @@ describe GoCardlessPro::Services::BankDetailsLookupsService do
         )
       end
 
-      it 'fetches the already-created resource' do
+      it 'raises an InvalidStateError' do
         expect { post_create_response }.to raise_error(GoCardlessPro::InvalidStateError)
         expect(post_stub).to have_been_requested
       end
