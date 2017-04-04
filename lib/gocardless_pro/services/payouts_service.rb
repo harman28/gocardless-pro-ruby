@@ -77,10 +77,6 @@ module GoCardlessPro
           new_url.gsub(":#{param}", URI.escape(value))
         end
       end
-
-      def handle_conflict(error)
-        get(error.conflicting_resource_id)
-      end
     end
   end
 end

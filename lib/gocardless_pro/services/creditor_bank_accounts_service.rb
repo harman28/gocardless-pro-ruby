@@ -25,7 +25,7 @@ module GoCardlessPro
           response = make_request(:post, path, options)
           response.tap(&:body)
         rescue InvalidStateError => e
-          return handle_conflict(e) if e.idempotent_creation_conflict?
+          return get(e.conflicting_resource_id) if e.idempotent_creation_conflict?
 
           raise e
         end
@@ -100,7 +100,7 @@ module GoCardlessPro
           response = make_request(:post, path, options)
           response.tap(&:body)
         rescue InvalidStateError => e
-          return handle_conflict(e) if e.idempotent_creation_conflict?
+          return get(e.conflicting_resource_id) if e.idempotent_creation_conflict?
 
           raise e
         end
@@ -131,10 +131,6 @@ module GoCardlessPro
         param_map.reduce(url) do |new_url, (param, value)|
           new_url.gsub(":#{param}", URI.escape(value))
         end
-      end
-
-      def handle_conflict(error)
-        get(error.conflicting_resource_id)
       end
     end
   end

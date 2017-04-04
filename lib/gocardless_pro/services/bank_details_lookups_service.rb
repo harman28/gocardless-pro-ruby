@@ -33,14 +33,7 @@ module GoCardlessPro
         options[:params] = {}
         options[:params][envelope_key] = params
 
-        begin
-          response = make_request(:post, path, options)
-          response.tap(&:body)
-        rescue InvalidStateError => e
-          return handle_conflict(e) if e.idempotent_creation_conflict?
-
-          raise e
-        end
+        response = make_request(:post, path, options)
 
         return if response.body.nil?
 
@@ -68,10 +61,6 @@ module GoCardlessPro
         param_map.reduce(url) do |new_url, (param, value)|
           new_url.gsub(":#{param}", URI.escape(value))
         end
-      end
-
-      def handle_conflict(error)
-        fail error
       end
     end
   end
