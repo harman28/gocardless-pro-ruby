@@ -7,6 +7,8 @@ describe GoCardlessPro::Services::CustomersService do
     )
   end
 
+  let(:response_headers) { { 'Content-Type' => 'application/json' } }
+
   describe '#create' do
     subject(:post_create_response) { client.customers.create(params: new_resource) }
     context 'with a valid request' do
@@ -82,12 +84,35 @@ describe GoCardlessPro::Services::CustomersService do
                 }
 
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
 
       it 'creates and returns the resource' do
         expect(post_create_response).to be_a(GoCardlessPro::Resources::Customer)
+      end
+
+      describe 'retry behaviour' do
+        before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+        it 'retries timeouts' do
+          stub = stub_request(:post, %r{.*api.gocardless.com/customers})
+                 .to_timeout.then.to_return(status: 200, headers: response_headers)
+
+          post_create_response
+          expect(stub).to have_been_requested.twice
+        end
+
+        it 'retries 5XX errors' do
+          stub = stub_request(:post, %r{.*api.gocardless.com/customers})
+                 .to_return(status: 502,
+                            headers: { 'Content-Type' => 'text/html' },
+                            body: '<html><body>Response from Cloudflare</body></html>')
+                 .then.to_return(status: 200, headers: response_headers)
+
+          post_create_response
+          expect(stub).to have_been_requested.twice
+        end
       end
     end
 
@@ -105,7 +130,7 @@ describe GoCardlessPro::Services::CustomersService do
               ]
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' },
+          headers: response_headers,
           status: 422
         )
       end
@@ -157,7 +182,7 @@ describe GoCardlessPro::Services::CustomersService do
               ]
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' },
+          headers: response_headers,
           status: 409
         )
       end
@@ -187,7 +212,7 @@ describe GoCardlessPro::Services::CustomersService do
                 'swedish_identity_number' => 'swedish_identity_number-input'
               }
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
 
@@ -203,36 +228,40 @@ describe GoCardlessPro::Services::CustomersService do
     describe 'with no filters' do
       subject(:get_list_response) { client.customers.list }
 
+      let(:body) do
+        {
+          'customers' => [{
+
+            'address_line1' => 'address_line1-input',
+            'address_line2' => 'address_line2-input',
+            'address_line3' => 'address_line3-input',
+            'city' => 'city-input',
+            'company_name' => 'company_name-input',
+            'country_code' => 'country_code-input',
+            'created_at' => 'created_at-input',
+            'email' => 'email-input',
+            'family_name' => 'family_name-input',
+            'given_name' => 'given_name-input',
+            'id' => 'id-input',
+            'language' => 'language-input',
+            'metadata' => 'metadata-input',
+            'postal_code' => 'postal_code-input',
+            'region' => 'region-input',
+            'swedish_identity_number' => 'swedish_identity_number-input'
+          }],
+          meta: {
+            cursors: {
+              before: nil,
+              after: 'ABC123'
+            }
+          }
+        }.to_json
+      end
+
       before do
         stub_request(:get, %r{.*api.gocardless.com/customers}).to_return(
-          body: {
-            'customers' => [{
-
-              'address_line1' => 'address_line1-input',
-              'address_line2' => 'address_line2-input',
-              'address_line3' => 'address_line3-input',
-              'city' => 'city-input',
-              'company_name' => 'company_name-input',
-              'country_code' => 'country_code-input',
-              'created_at' => 'created_at-input',
-              'email' => 'email-input',
-              'family_name' => 'family_name-input',
-              'given_name' => 'given_name-input',
-              'id' => 'id-input',
-              'language' => 'language-input',
-              'metadata' => 'metadata-input',
-              'postal_code' => 'postal_code-input',
-              'region' => 'region-input',
-              'swedish_identity_number' => 'swedish_identity_number-input'
-            }],
-            meta: {
-              cursors: {
-                before: nil,
-                after: 'ABC123'
-              }
-            }
-          }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          body: body,
+          headers: response_headers
         )
       end
 
@@ -278,6 +307,29 @@ describe GoCardlessPro::Services::CustomersService do
       end
 
       specify { expect(get_list_response.api_response.headers).to eql('content-type' => 'application/json') }
+
+      describe 'retry behaviour' do
+        before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+        it 'retries timeouts' do
+          stub = stub_request(:get, %r{.*api.gocardless.com/customers})
+                 .to_timeout.then.to_return(status: 200, headers: response_headers, body: body)
+
+          get_list_response
+          expect(stub).to have_been_requested.twice
+        end
+
+        it 'retries 5XX errors' do
+          stub = stub_request(:get, %r{.*api.gocardless.com/customers})
+                 .to_return(status: 502,
+                            headers: { 'Content-Type' => 'text/html' },
+                            body: '<html><body>Response from Cloudflare</body></html>')
+                 .then.to_return(status: 200, headers: response_headers, body: body)
+
+          get_list_response
+          expect(stub).to have_been_requested.twice
+        end
+      end
     end
   end
 
@@ -309,7 +361,7 @@ describe GoCardlessPro::Services::CustomersService do
             limit: 1
           }
         }.to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: response_headers
       )
     end
 
@@ -340,7 +392,7 @@ describe GoCardlessPro::Services::CustomersService do
             cursors: {}
           }
         }.to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: response_headers
       )
     end
 
@@ -348,6 +400,88 @@ describe GoCardlessPro::Services::CustomersService do
       expect(client.customers.all.to_a.length).to eq(2)
       expect(first_response_stub).to have_been_requested
       expect(second_response_stub).to have_been_requested
+    end
+
+    describe 'retry behaviour' do
+      before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+      it 'retries timeouts' do
+        first_response_stub = stub_request(:get, %r{.*api.gocardless.com/customers$}).to_return(
+          body: {
+            'customers' => [{
+
+              'address_line1' => 'address_line1-input',
+              'address_line2' => 'address_line2-input',
+              'address_line3' => 'address_line3-input',
+              'city' => 'city-input',
+              'company_name' => 'company_name-input',
+              'country_code' => 'country_code-input',
+              'created_at' => 'created_at-input',
+              'email' => 'email-input',
+              'family_name' => 'family_name-input',
+              'given_name' => 'given_name-input',
+              'id' => 'id-input',
+              'language' => 'language-input',
+              'metadata' => 'metadata-input',
+              'postal_code' => 'postal_code-input',
+              'region' => 'region-input',
+              'swedish_identity_number' => 'swedish_identity_number-input'
+            }],
+            meta: {
+              cursors: { after: 'AB345' },
+              limit: 1
+            }
+          }.to_json,
+          headers: response_headers
+        )
+
+        second_response_stub = stub_request(:get, %r{.*api.gocardless.com/customers\?after=AB345})
+                               .to_timeout.then
+                               .to_return(
+                                 body: {
+                                   'customers' => [{
+
+                                     'address_line1' => 'address_line1-input',
+                                     'address_line2' => 'address_line2-input',
+                                     'address_line3' => 'address_line3-input',
+                                     'city' => 'city-input',
+                                     'company_name' => 'company_name-input',
+                                     'country_code' => 'country_code-input',
+                                     'created_at' => 'created_at-input',
+                                     'email' => 'email-input',
+                                     'family_name' => 'family_name-input',
+                                     'given_name' => 'given_name-input',
+                                     'id' => 'id-input',
+                                     'language' => 'language-input',
+                                     'metadata' => 'metadata-input',
+                                     'postal_code' => 'postal_code-input',
+                                     'region' => 'region-input',
+                                     'swedish_identity_number' => 'swedish_identity_number-input'
+                                   }],
+                                   meta: {
+                                     limit: 2,
+                                     cursors: {}
+                                   }
+                                 }.to_json,
+                                 headers: response_headers
+                               )
+
+        client.customers.all.to_a
+
+        expect(first_response_stub).to have_been_requested
+        expect(second_response_stub).to have_been_requested.twice
+      end
+
+      # it "retries 5XX errors" do
+      #   stub = stub_request(:get, %r(.*api.gocardless.com/customers)).
+      #     to_return({ status: 502,
+      #                 headers: { 'Content-Type' => 'text/html'},
+      #                 body: '<html><body>Response from Cloudflare</body></html>' }).
+      #     then.to_return({ status: 200, headers: response_headers, body: body })
+
+      #   get_list_response
+      #   expect(stub).to have_been_requested.twice
+      # end
     end
   end
 
@@ -383,7 +517,7 @@ describe GoCardlessPro::Services::CustomersService do
                 'swedish_identity_number' => 'swedish_identity_number-input'
               }
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
 
@@ -424,7 +558,7 @@ describe GoCardlessPro::Services::CustomersService do
               'swedish_identity_number' => 'swedish_identity_number-input'
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          headers: response_headers
         )
       end
 
@@ -438,7 +572,7 @@ describe GoCardlessPro::Services::CustomersService do
         stub_url = '/customers/:identity'.gsub(':identity', id)
         stub_request(:get, /.*api.gocardless.com#{stub_url}/).to_return(
           body: '',
-          headers: { 'Content-Type' => 'application/json' }
+          headers: response_headers
         )
       end
 
@@ -452,6 +586,33 @@ describe GoCardlessPro::Services::CustomersService do
 
       it "doesn't raise an error" do
         expect { get_response }.to_not raise_error(/bad URI/)
+      end
+    end
+
+    describe 'retry behaviour' do
+      before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+      it 'retries timeouts' do
+        stub_url = '/customers/:identity'.gsub(':identity', id)
+
+        stub = stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+               .to_timeout.then.to_return(status: 200, headers: response_headers)
+
+        get_response
+        expect(stub).to have_been_requested.twice
+      end
+
+      it 'retries 5XX errors' do
+        stub_url = '/customers/:identity'.gsub(':identity', id)
+
+        stub = stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+               .to_return(status: 502,
+                          headers: { 'Content-Type' => 'text/html' },
+                          body: '<html><body>Response from Cloudflare</body></html>')
+               .then.to_return(status: 200, headers: response_headers)
+
+        get_response
+        expect(stub).to have_been_requested.twice
       end
     end
   end
@@ -487,13 +648,38 @@ describe GoCardlessPro::Services::CustomersService do
               'swedish_identity_number' => 'swedish_identity_number-input'
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          headers: response_headers
         )
       end
 
       it 'updates and returns the resource' do
         expect(put_update_response).to be_a(GoCardlessPro::Resources::Customer)
         expect(stub).to have_been_requested
+      end
+
+      describe 'retry behaviour' do
+        before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+        it 'retries timeouts' do
+          stub_url = '/customers/:identity'.gsub(':identity', id)
+          stub = stub_request(:put, /.*api.gocardless.com#{stub_url}/)
+                 .to_timeout.then.to_return(status: 200, headers: response_headers)
+
+          put_update_response
+          expect(stub).to have_been_requested.twice
+        end
+
+        it 'retries 5XX errors' do
+          stub_url = '/customers/:identity'.gsub(':identity', id)
+          stub = stub_request(:put, /.*api.gocardless.com#{stub_url}/)
+                 .to_return(status: 502,
+                            headers: { 'Content-Type' => 'text/html' },
+                            body: '<html><body>Response from Cloudflare</body></html>')
+                 .then.to_return(status: 200, headers: response_headers)
+
+          put_update_response
+          expect(stub).to have_been_requested.twice
+        end
       end
     end
   end

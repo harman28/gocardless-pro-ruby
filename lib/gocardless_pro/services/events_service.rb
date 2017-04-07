@@ -18,6 +18,8 @@ module GoCardlessPro
       def list(options = {})
         path = '/events'
 
+        options[:retry_failures] = true
+
         response = make_request(:get, path, options)
 
         ListResponse.new(
@@ -45,6 +47,8 @@ module GoCardlessPro
       # @param options [Hash] parameters as a hash, under a params key.
       def get(identity, options = {})
         path = sub_url('/events/:identity', 'identity' => identity)
+
+        options[:retry_failures] = true
 
         response = make_request(:get, path, options)
 

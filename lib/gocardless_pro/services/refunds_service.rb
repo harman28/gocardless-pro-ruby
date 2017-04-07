@@ -39,6 +39,8 @@ module GoCardlessPro
         options[:params] = {}
         options[:params][envelope_key] = params
 
+        options[:retry_failures] = true
+
         begin
           response = make_request(:post, path, options)
 
@@ -61,6 +63,8 @@ module GoCardlessPro
       # @param options [Hash] parameters as a hash, under a params key.
       def list(options = {})
         path = '/refunds'
+
+        options[:retry_failures] = true
 
         response = make_request(:get, path, options)
 
@@ -90,6 +94,8 @@ module GoCardlessPro
       def get(identity, options = {})
         path = sub_url('/refunds/:identity', 'identity' => identity)
 
+        options[:retry_failures] = true
+
         response = make_request(:get, path, options)
 
         return if response.body.nil?
@@ -108,6 +114,8 @@ module GoCardlessPro
         params = options.delete(:params) || {}
         options[:params] = {}
         options[:params][envelope_key] = params
+
+        options[:retry_failures] = true
 
         response = make_request(:put, path, options)
 

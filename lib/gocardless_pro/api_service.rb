@@ -10,9 +10,6 @@ require 'base64'
 module GoCardlessPro
   # GoCardless API
   class ApiService
-    MAX_AUTOMATIC_TIMEOUT_RETRIES = 3
-    ACTIONS_REQUEST_PATH_REGEX = /\/actions\/[a-z]+\z/.freeze
-
     # Initialize an APIService
     #
     # @param url [String] the URL to make requests to
@@ -26,16 +23,7 @@ module GoCardlessPro
       connection_options = options[:connection_options]
 
       @connection = Faraday.new(root_url, connection_options) do |faraday|
-        faraday.request :retry,
-                        max: MAX_AUTOMATIC_TIMEOUT_RETRIES,
-                        # Retry requests if they're GET or PUT requests, or they're
-                        # POST requests which aren't "actions"
-                        methods: [:get, :put],
-                        retry_if: ->(env, _exception) do
-                          return unless env.method == :post
-                          return if env.url.path =~ ACTIONS_REQUEST_PATH_REGEX
-                          true
-                        end
+        faraday.response :raise_gocardless_errors
 
         faraday.adapter(*http_adapter)
       end

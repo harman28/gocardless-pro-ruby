@@ -32,6 +32,8 @@ module GoCardlessPro
         options[:params] = {}
         options[:params][envelope_key] = params
 
+        options[:retry_failures] = true
+
         response = make_request(:post, path, options)
 
         return if response.body.nil?

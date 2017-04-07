@@ -7,6 +7,8 @@ describe GoCardlessPro::Services::SubscriptionsService do
     )
   end
 
+  let(:response_headers) { { 'Content-Type' => 'application/json' } }
+
   describe '#create' do
     subject(:post_create_response) { client.subscriptions.create(params: new_resource) }
     context 'with a valid request' do
@@ -82,12 +84,35 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 }
 
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
 
       it 'creates and returns the resource' do
         expect(post_create_response).to be_a(GoCardlessPro::Resources::Subscription)
+      end
+
+      describe 'retry behaviour' do
+        before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+        it 'retries timeouts' do
+          stub = stub_request(:post, %r{.*api.gocardless.com/subscriptions})
+                 .to_timeout.then.to_return(status: 200, headers: response_headers)
+
+          post_create_response
+          expect(stub).to have_been_requested.twice
+        end
+
+        it 'retries 5XX errors' do
+          stub = stub_request(:post, %r{.*api.gocardless.com/subscriptions})
+                 .to_return(status: 502,
+                            headers: { 'Content-Type' => 'text/html' },
+                            body: '<html><body>Response from Cloudflare</body></html>')
+                 .then.to_return(status: 200, headers: response_headers)
+
+          post_create_response
+          expect(stub).to have_been_requested.twice
+        end
       end
     end
 
@@ -105,7 +130,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               ]
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' },
+          headers: response_headers,
           status: 422
         )
       end
@@ -157,7 +182,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               ]
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' },
+          headers: response_headers,
           status: 409
         )
       end
@@ -187,7 +212,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 'upcoming_payments' => 'upcoming_payments-input'
               }
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
 
@@ -203,36 +228,40 @@ describe GoCardlessPro::Services::SubscriptionsService do
     describe 'with no filters' do
       subject(:get_list_response) { client.subscriptions.list }
 
+      let(:body) do
+        {
+          'subscriptions' => [{
+
+            'amount' => 'amount-input',
+            'created_at' => 'created_at-input',
+            'currency' => 'currency-input',
+            'day_of_month' => 'day_of_month-input',
+            'end_date' => 'end_date-input',
+            'id' => 'id-input',
+            'interval' => 'interval-input',
+            'interval_unit' => 'interval_unit-input',
+            'links' => 'links-input',
+            'metadata' => 'metadata-input',
+            'month' => 'month-input',
+            'name' => 'name-input',
+            'payment_reference' => 'payment_reference-input',
+            'start_date' => 'start_date-input',
+            'status' => 'status-input',
+            'upcoming_payments' => 'upcoming_payments-input'
+          }],
+          meta: {
+            cursors: {
+              before: nil,
+              after: 'ABC123'
+            }
+          }
+        }.to_json
+      end
+
       before do
         stub_request(:get, %r{.*api.gocardless.com/subscriptions}).to_return(
-          body: {
-            'subscriptions' => [{
-
-              'amount' => 'amount-input',
-              'created_at' => 'created_at-input',
-              'currency' => 'currency-input',
-              'day_of_month' => 'day_of_month-input',
-              'end_date' => 'end_date-input',
-              'id' => 'id-input',
-              'interval' => 'interval-input',
-              'interval_unit' => 'interval_unit-input',
-              'links' => 'links-input',
-              'metadata' => 'metadata-input',
-              'month' => 'month-input',
-              'name' => 'name-input',
-              'payment_reference' => 'payment_reference-input',
-              'start_date' => 'start_date-input',
-              'status' => 'status-input',
-              'upcoming_payments' => 'upcoming_payments-input'
-            }],
-            meta: {
-              cursors: {
-                before: nil,
-                after: 'ABC123'
-              }
-            }
-          }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          body: body,
+          headers: response_headers
         )
       end
 
@@ -276,6 +305,29 @@ describe GoCardlessPro::Services::SubscriptionsService do
       end
 
       specify { expect(get_list_response.api_response.headers).to eql('content-type' => 'application/json') }
+
+      describe 'retry behaviour' do
+        before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+        it 'retries timeouts' do
+          stub = stub_request(:get, %r{.*api.gocardless.com/subscriptions})
+                 .to_timeout.then.to_return(status: 200, headers: response_headers, body: body)
+
+          get_list_response
+          expect(stub).to have_been_requested.twice
+        end
+
+        it 'retries 5XX errors' do
+          stub = stub_request(:get, %r{.*api.gocardless.com/subscriptions})
+                 .to_return(status: 502,
+                            headers: { 'Content-Type' => 'text/html' },
+                            body: '<html><body>Response from Cloudflare</body></html>')
+                 .then.to_return(status: 200, headers: response_headers, body: body)
+
+          get_list_response
+          expect(stub).to have_been_requested.twice
+        end
+      end
     end
   end
 
@@ -307,7 +359,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
             limit: 1
           }
         }.to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: response_headers
       )
     end
 
@@ -338,7 +390,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
             cursors: {}
           }
         }.to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: response_headers
       )
     end
 
@@ -346,6 +398,88 @@ describe GoCardlessPro::Services::SubscriptionsService do
       expect(client.subscriptions.all.to_a.length).to eq(2)
       expect(first_response_stub).to have_been_requested
       expect(second_response_stub).to have_been_requested
+    end
+
+    describe 'retry behaviour' do
+      before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+      it 'retries timeouts' do
+        first_response_stub = stub_request(:get, %r{.*api.gocardless.com/subscriptions$}).to_return(
+          body: {
+            'subscriptions' => [{
+
+              'amount' => 'amount-input',
+              'created_at' => 'created_at-input',
+              'currency' => 'currency-input',
+              'day_of_month' => 'day_of_month-input',
+              'end_date' => 'end_date-input',
+              'id' => 'id-input',
+              'interval' => 'interval-input',
+              'interval_unit' => 'interval_unit-input',
+              'links' => 'links-input',
+              'metadata' => 'metadata-input',
+              'month' => 'month-input',
+              'name' => 'name-input',
+              'payment_reference' => 'payment_reference-input',
+              'start_date' => 'start_date-input',
+              'status' => 'status-input',
+              'upcoming_payments' => 'upcoming_payments-input'
+            }],
+            meta: {
+              cursors: { after: 'AB345' },
+              limit: 1
+            }
+          }.to_json,
+          headers: response_headers
+        )
+
+        second_response_stub = stub_request(:get, %r{.*api.gocardless.com/subscriptions\?after=AB345})
+                               .to_timeout.then
+                               .to_return(
+                                 body: {
+                                   'subscriptions' => [{
+
+                                     'amount' => 'amount-input',
+                                     'created_at' => 'created_at-input',
+                                     'currency' => 'currency-input',
+                                     'day_of_month' => 'day_of_month-input',
+                                     'end_date' => 'end_date-input',
+                                     'id' => 'id-input',
+                                     'interval' => 'interval-input',
+                                     'interval_unit' => 'interval_unit-input',
+                                     'links' => 'links-input',
+                                     'metadata' => 'metadata-input',
+                                     'month' => 'month-input',
+                                     'name' => 'name-input',
+                                     'payment_reference' => 'payment_reference-input',
+                                     'start_date' => 'start_date-input',
+                                     'status' => 'status-input',
+                                     'upcoming_payments' => 'upcoming_payments-input'
+                                   }],
+                                   meta: {
+                                     limit: 2,
+                                     cursors: {}
+                                   }
+                                 }.to_json,
+                                 headers: response_headers
+                               )
+
+        client.subscriptions.all.to_a
+
+        expect(first_response_stub).to have_been_requested
+        expect(second_response_stub).to have_been_requested.twice
+      end
+
+      # it "retries 5XX errors" do
+      #   stub = stub_request(:get, %r(.*api.gocardless.com/subscriptions)).
+      #     to_return({ status: 502,
+      #                 headers: { 'Content-Type' => 'text/html'},
+      #                 body: '<html><body>Response from Cloudflare</body></html>' }).
+      #     then.to_return({ status: 200, headers: response_headers, body: body })
+
+      #   get_list_response
+      #   expect(stub).to have_been_requested.twice
+      # end
     end
   end
 
@@ -381,7 +515,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 'upcoming_payments' => 'upcoming_payments-input'
               }
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
 
@@ -422,7 +556,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
               'upcoming_payments' => 'upcoming_payments-input'
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          headers: response_headers
         )
       end
 
@@ -436,7 +570,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
         stub_url = '/subscriptions/:identity'.gsub(':identity', id)
         stub_request(:get, /.*api.gocardless.com#{stub_url}/).to_return(
           body: '',
-          headers: { 'Content-Type' => 'application/json' }
+          headers: response_headers
         )
       end
 
@@ -450,6 +584,33 @@ describe GoCardlessPro::Services::SubscriptionsService do
 
       it "doesn't raise an error" do
         expect { get_response }.to_not raise_error(/bad URI/)
+      end
+    end
+
+    describe 'retry behaviour' do
+      before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+      it 'retries timeouts' do
+        stub_url = '/subscriptions/:identity'.gsub(':identity', id)
+
+        stub = stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+               .to_timeout.then.to_return(status: 200, headers: response_headers)
+
+        get_response
+        expect(stub).to have_been_requested.twice
+      end
+
+      it 'retries 5XX errors' do
+        stub_url = '/subscriptions/:identity'.gsub(':identity', id)
+
+        stub = stub_request(:get, /.*api.gocardless.com#{stub_url}/)
+               .to_return(status: 502,
+                          headers: { 'Content-Type' => 'text/html' },
+                          body: '<html><body>Response from Cloudflare</body></html>')
+               .then.to_return(status: 200, headers: response_headers)
+
+        get_response
+        expect(stub).to have_been_requested.twice
       end
     end
   end
@@ -485,13 +646,38 @@ describe GoCardlessPro::Services::SubscriptionsService do
               'upcoming_payments' => 'upcoming_payments-input'
             }
           }.to_json,
-          headers: { 'Content-Type' => 'application/json' }
+          headers: response_headers
         )
       end
 
       it 'updates and returns the resource' do
         expect(put_update_response).to be_a(GoCardlessPro::Resources::Subscription)
         expect(stub).to have_been_requested
+      end
+
+      describe 'retry behaviour' do
+        before { allow_any_instance_of(GoCardlessPro::Request).to receive(:sleep) }
+
+        it 'retries timeouts' do
+          stub_url = '/subscriptions/:identity'.gsub(':identity', id)
+          stub = stub_request(:put, /.*api.gocardless.com#{stub_url}/)
+                 .to_timeout.then.to_return(status: 200, headers: response_headers)
+
+          put_update_response
+          expect(stub).to have_been_requested.twice
+        end
+
+        it 'retries 5XX errors' do
+          stub_url = '/subscriptions/:identity'.gsub(':identity', id)
+          stub = stub_request(:put, /.*api.gocardless.com#{stub_url}/)
+                 .to_return(status: 502,
+                            headers: { 'Content-Type' => 'text/html' },
+                            body: '<html><body>Response from Cloudflare</body></html>')
+                 .then.to_return(status: 200, headers: response_headers)
+
+          put_update_response
+          expect(stub).to have_been_requested.twice
+        end
       end
     end
   end
@@ -526,7 +712,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
             'upcoming_payments' => 'upcoming_payments-input'
           }
         }.to_json,
-        headers: { 'Content-Type' => 'application/json' }
+        headers: response_headers
       )
     end
 
@@ -534,6 +720,17 @@ describe GoCardlessPro::Services::SubscriptionsService do
       expect(post_response).to be_a(GoCardlessPro::Resources::Subscription)
 
       expect(stub).to have_been_requested
+    end
+
+    describe 'retry behaviour' do
+      it "doesn't retriy errors" do
+        stub_url = '/subscriptions/:identity/actions/cancel'.gsub(':identity', resource_id)
+        stub = stub_request(:post, /.*api.gocardless.com#{stub_url}/)
+               .to_timeout
+
+        expect { post_response }.to raise_error(Faraday::TimeoutError)
+        expect(stub).to have_been_requested
+      end
     end
 
     context 'when the request needs a body and custom header' do
@@ -572,7 +769,7 @@ describe GoCardlessPro::Services::SubscriptionsService do
                 'upcoming_payments' => 'upcoming_payments-input'
               }
             }.to_json,
-            headers: { 'Content-Type' => 'application/json' }
+            headers: response_headers
           )
       end
     end
