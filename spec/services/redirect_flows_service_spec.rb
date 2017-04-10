@@ -333,7 +333,7 @@ describe GoCardlessPro::Services::RedirectFlowsService do
     end
 
     describe 'retry behaviour' do
-      it "doesn't retriy errors" do
+      it "doesn't retry errors" do
         stub_url = '/redirect_flows/:identity/actions/complete'.gsub(':identity', resource_id)
         stub = stub_request(:post, /.*api.gocardless.com#{stub_url}/)
                .to_timeout

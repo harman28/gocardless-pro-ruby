@@ -18,6 +18,7 @@ describe GoCardlessPro::Middlewares::RaiseGoCardlessErrors do
   let(:headers) { { 'Content-Type' => 'application/json' } }
 
   context 'with a non-JSON response' do
+    let(:body) { '<html><body>Response from Cloudflare</body></html>' }
     let(:headers) { { 'Content-Type' => 'text/html' } }
     let(:status) { 514 }
 

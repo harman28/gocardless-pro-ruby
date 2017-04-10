@@ -192,16 +192,57 @@ describe GoCardlessPro::Services::EventsService do
         expect(second_response_stub).to have_been_requested.twice
       end
 
-      # it "retries 5XX errors" do
-      #   stub = stub_request(:get, %r(.*api.gocardless.com/events)).
-      #     to_return({ status: 502,
-      #                 headers: { 'Content-Type' => 'text/html'},
-      #                 body: '<html><body>Response from Cloudflare</body></html>' }).
-      #     then.to_return({ status: 200, headers: response_headers, body: body })
+      it 'retries 5XX errors' do
+        first_response_stub = stub_request(:get, %r{.*api.gocardless.com/events$}).to_return(
+          body: {
+            'events' => [{
 
-      #   get_list_response
-      #   expect(stub).to have_been_requested.twice
-      # end
+              'action' => 'action-input',
+              'created_at' => 'created_at-input',
+              'details' => 'details-input',
+              'id' => 'id-input',
+              'links' => 'links-input',
+              'metadata' => 'metadata-input',
+              'resource_type' => 'resource_type-input'
+            }],
+            meta: {
+              cursors: { after: 'AB345' },
+              limit: 1
+            }
+          }.to_json,
+          headers: response_headers
+        )
+
+        second_response_stub = stub_request(:get, %r{.*api.gocardless.com/events\?after=AB345})
+                               .to_return(
+                                 status: 502,
+                                 body: '<html><body>Response from Cloudflare</body></html>',
+                                 headers: { 'Content-Type' => 'text/html' }
+                               ).then.to_return(
+                                 body: {
+                                   'events' => [{
+
+                                     'action' => 'action-input',
+                                     'created_at' => 'created_at-input',
+                                     'details' => 'details-input',
+                                     'id' => 'id-input',
+                                     'links' => 'links-input',
+                                     'metadata' => 'metadata-input',
+                                     'resource_type' => 'resource_type-input'
+                                   }],
+                                   meta: {
+                                     limit: 2,
+                                     cursors: {}
+                                   }
+                                 }.to_json,
+                                 headers: response_headers
+                               )
+
+        client.events.all.to_a
+
+        expect(first_response_stub).to have_been_requested
+        expect(second_response_stub).to have_been_requested.twice
+      end
     end
   end
 

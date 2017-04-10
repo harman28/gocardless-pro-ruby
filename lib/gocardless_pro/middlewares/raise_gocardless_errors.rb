@@ -1,15 +1,15 @@
 module GoCardlessPro
   module Middlewares
     class RaiseGoCardlessErrors < Faraday::Response::Middleware
-      API_ERROR_STATUSES = 501..600
-      OTHER_ERROR_STATUSES = 400..500
+      API_ERROR_STATUSES = 501..599
+      CLIENT_ERROR_STATUSES = 400..500
 
       def on_complete(env)
         if !json?(env) || API_ERROR_STATUSES.include?(env.status)
           fail ApiError, generate_error_data(env)
         end
 
-        if OTHER_ERROR_STATUSES.include?(env.status)
+        if CLIENT_ERROR_STATUSES.include?(env.status)
           json_body ||= JSON.parse(env.body) unless env.body.empty?
           error_type = json_body['error']['type']
           fail(error_class_for_type(error_type), json_body['error'])
@@ -30,9 +30,10 @@ module GoCardlessPro
       def generate_error_data(env)
         {
           'message' => "Something went wrong with this request\n" \
-          "code: #{env.status}\n" \
-          "headers: #{env.response_headers}\n" \
-          "body: #{env.body}"
+                       "code: #{env.status}\n" \
+                       "headers: #{env.response_headers}\n" \
+                       "body: #{env.body}",
+          'code' => env.status
         }
       end
 

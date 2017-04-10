@@ -116,9 +116,9 @@ For POST and PUT requests you need to pass in the body in under the `params` key
 ```
 
 When creating a resource, the library will automatically include a randomly-generated
-[idempotency key](https://developer.gocardless.com/pro/#making-requests-idempotency-keys)
+[idempotency key](https://developer.gocardless.com/api-reference/#making-requests-idempotency-keys)
 - this means that if a request appears to fail but is in fact successful (for example due
-to a timeout), you will not end up double-creating resources.
+to a timeout), you will not end up creating multiple duplicates of the resource.
 
 If any parameters are required they come first:
 

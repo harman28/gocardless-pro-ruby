@@ -410,16 +410,65 @@ describe GoCardlessPro::Services::PaymentsService do
         expect(second_response_stub).to have_been_requested.twice
       end
 
-      # it "retries 5XX errors" do
-      #   stub = stub_request(:get, %r(.*api.gocardless.com/payments)).
-      #     to_return({ status: 502,
-      #                 headers: { 'Content-Type' => 'text/html'},
-      #                 body: '<html><body>Response from Cloudflare</body></html>' }).
-      #     then.to_return({ status: 200, headers: response_headers, body: body })
+      it 'retries 5XX errors' do
+        first_response_stub = stub_request(:get, %r{.*api.gocardless.com/payments$}).to_return(
+          body: {
+            'payments' => [{
 
-      #   get_list_response
-      #   expect(stub).to have_been_requested.twice
-      # end
+              'amount' => 'amount-input',
+              'amount_refunded' => 'amount_refunded-input',
+              'charge_date' => 'charge_date-input',
+              'created_at' => 'created_at-input',
+              'currency' => 'currency-input',
+              'description' => 'description-input',
+              'id' => 'id-input',
+              'links' => 'links-input',
+              'metadata' => 'metadata-input',
+              'reference' => 'reference-input',
+              'status' => 'status-input'
+            }],
+            meta: {
+              cursors: { after: 'AB345' },
+              limit: 1
+            }
+          }.to_json,
+          headers: response_headers
+        )
+
+        second_response_stub = stub_request(:get, %r{.*api.gocardless.com/payments\?after=AB345})
+                               .to_return(
+                                 status: 502,
+                                 body: '<html><body>Response from Cloudflare</body></html>',
+                                 headers: { 'Content-Type' => 'text/html' }
+                               ).then.to_return(
+                                 body: {
+                                   'payments' => [{
+
+                                     'amount' => 'amount-input',
+                                     'amount_refunded' => 'amount_refunded-input',
+                                     'charge_date' => 'charge_date-input',
+                                     'created_at' => 'created_at-input',
+                                     'currency' => 'currency-input',
+                                     'description' => 'description-input',
+                                     'id' => 'id-input',
+                                     'links' => 'links-input',
+                                     'metadata' => 'metadata-input',
+                                     'reference' => 'reference-input',
+                                     'status' => 'status-input'
+                                   }],
+                                   meta: {
+                                     limit: 2,
+                                     cursors: {}
+                                   }
+                                 }.to_json,
+                                 headers: response_headers
+                               )
+
+        client.payments.all.to_a
+
+        expect(first_response_stub).to have_been_requested
+        expect(second_response_stub).to have_been_requested.twice
+      end
     end
   end
 
@@ -643,7 +692,7 @@ describe GoCardlessPro::Services::PaymentsService do
     end
 
     describe 'retry behaviour' do
-      it "doesn't retriy errors" do
+      it "doesn't retry errors" do
         stub_url = '/payments/:identity/actions/cancel'.gsub(':identity', resource_id)
         stub = stub_request(:post, /.*api.gocardless.com#{stub_url}/)
                .to_timeout
@@ -726,7 +775,7 @@ describe GoCardlessPro::Services::PaymentsService do
     end
 
     describe 'retry behaviour' do
-      it "doesn't retriy errors" do
+      it "doesn't retry errors" do
         stub_url = '/payments/:identity/actions/retry'.gsub(':identity', resource_id)
         stub = stub_request(:post, /.*api.gocardless.com#{stub_url}/)
                .to_timeout
