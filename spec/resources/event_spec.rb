@@ -20,6 +20,7 @@ describe GoCardlessPro::Resources::Event do
 
               'action' => 'action-input',
               'created_at' => 'created_at-input',
+              'customer_notifications' => 'customer_notifications-input',
               'details' => 'details-input',
               'id' => 'id-input',
               'links' => 'links-input',
@@ -43,6 +44,8 @@ describe GoCardlessPro::Resources::Event do
         expect(get_list_response.records.first.action).to eq('action-input')
 
         expect(get_list_response.records.first.created_at).to eq('created_at-input')
+
+        expect(get_list_response.records.first.customer_notifications).to eq('customer_notifications-input')
 
         expect(get_list_response.records.first.details).to eq('details-input')
 
